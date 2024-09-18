@@ -5,9 +5,8 @@
 EasyHandler hand;
 
 
-void connect() {
-    // hand.startOutputThread(Outputer{});
-    hand.startOutputThread();
+void connect(int num_threads) {
+    hand.startOutputThreads(Outputer{}, num_threads);
 }
 
 void receive(std::string cmd) {

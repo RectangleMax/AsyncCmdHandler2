@@ -1,11 +1,16 @@
 #include "EasyAsync.h"
 #include <iostream>
 
-int main() {
+int main(int argc, char** argv) {
+    int num_threads;
+    if (argc < 2)
+        num_threads = 1;
+    else
+        num_threads = std::stoi(argv[1]);
 
     std::cout << std::endl << "start" << std::endl;
 
-    connect();
+    connect(num_threads);
 
     receive("a1");
     receive("a2");

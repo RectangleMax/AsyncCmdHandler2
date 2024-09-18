@@ -2,6 +2,7 @@
 #include "ThreadQueueCondition.h"
 #include <fstream>
 #include <thread>
+#include <vector>
 
 struct Outputer {
     void operator()(ThreadQueueCondition<std::string>&);
@@ -9,9 +10,11 @@ struct Outputer {
 
 class EasyHandler {
     ThreadQueueCondition<std::string> q;
-    std::thread output_thread;
+//    std::thread output_thread;
+    std::vector<std::thread> threads_vec;
 public:
     void push(std::string&);
+    void startOutputThreads(Outputer, int);
     void startOutputThread(Outputer);
     void startOutputThread();
     void wake_up_and_done();
@@ -26,7 +29,9 @@ public:
         // std::this_thread::sleep_for(std::chrono::microseconds(2000));
 
         std::cout << "Join thread before." << std::endl;        
-        output_thread.join();        
+        for (auto& t : threads_vec) {
+            t.join();
+        }
         std::cout << "Join thread after." << std::endl;        
     }
 };

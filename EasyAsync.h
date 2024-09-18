@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
 
-void connect();
+void connect(int);
 void receive(std::string);
 void disconnect();
