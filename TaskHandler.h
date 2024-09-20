@@ -1,26 +1,24 @@
 #pragma once
-#include "ThreadQueueCondition.h"
 #include <fstream>
 #include <thread>
 #include <vector>
 
-struct Outputer {
-    void operator()(ThreadQueueCondition<std::string>&);
-};
+#include "ThreadQueueCondition.h"
+#include "TaskOutputer.h"
 
-class EasyHandler {
-    ThreadQueueCondition<std::string> q;
-//    std::thread output_thread;
+class TaskHandler {
+    ThreadQueueCondition<Task> q;
+    std::thread output_thread;
     std::vector<std::thread> threads_vec;
 public:
-    void push(std::string&);
-    void startOutputThreads(Outputer, int);
-    void startOutputThread(Outputer);
-    void startOutputThread();
+    void push(std::string&&);
+    // void registerOutputThreads(BaseOutputer*);
+    void startOutputThreads(LogOutputer, int);
     void wake_up_and_done();
-    
-    ~EasyHandler() { 
-        std::cout << "Destructor of EasyHandler is working ..." << std::endl; 
+    void joinOutputThreads();
+
+    ~TaskHandler() { 
+        std::cout << "Destructor of TaskHandler is working ..." << std::endl; 
         // output_thread.join();
     }
 

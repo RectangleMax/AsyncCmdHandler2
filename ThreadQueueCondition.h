@@ -15,9 +15,9 @@ class ThreadQueueCondition {
     bool done_flag = false;
 public:
     void wake_up_and_done();
-    void push(T t);
-    bool wait_and_pop(T& t, std::function<bool(T&)> pop_condition);
-    bool wait_and_pop();
+    void push(T&& t);
+    bool wait_and_pop(T&, std::function<bool(T&)>, bool&);
+    bool wait_and_pop(T&);
 
     size_t size() { return queue.size(); }
 };

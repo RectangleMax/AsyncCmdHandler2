@@ -13,7 +13,7 @@ void ThreadQueueCondition<T>::wake_up_and_done() {
 }
 
 template<typename T>
-void ThreadQueueCondition<T>::push(T t) {
+void ThreadQueueCondition<T>::push(T&& t) {
     std::unique_lock ulock{mut};
     queue.push_back(t);
     
@@ -26,28 +26,29 @@ void ThreadQueueCondition<T>::push(T t) {
 }
 
 template<typename T>
-bool ThreadQueueCondition<T>::wait_and_pop(T& t, std::function<bool(T&)> pop_condition) {
+bool ThreadQueueCondition<T>::wait_and_pop(T& task_, std::function<bool(T&)> pop_condition, bool& done_outside_flag) {
     std::unique_lock ulock{mut};
     cond_var.wait(ulock, [this] {return !queue.empty() || done_flag;});
 
-    if (done_flag)
-        return false;
-
-    t = queue.back();
-
+    if (!queue.empty()) {
+        task_ = queue.back();
+        if (pop_condition(queue.back())) {
+            queue.pop_back();
+        }
+        ulock.unlock();
+        cond_var.notify_one();
+        return true;
+    } 
+    if (done_flag) {
+        done_outside_flag = true;
+    }
 //    std::cout << "Wait and pop, thread " << std::this_thread::get_id() << ", ready_to pop:" << t.ready_to_pop[0] << ", " << t.ready_to_pop[1] <<  std::endl;
+    return false;
 
-    if (pop_condition(queue.back()))
-        queue.pop_back();
-
-    ulock.unlock();
-
-    cond_var.notify_one();
-    return true;
 }
 
 template<typename T>
-bool ThreadQueueCondition<T>::wait_and_pop() {
+bool ThreadQueueCondition<T>::wait_and_pop(T& t) {
     std::unique_lock ulock{mut};
     cond_var.wait(ulock, [this] {return !queue.empty() || done_flag;});
 
@@ -56,7 +57,7 @@ bool ThreadQueueCondition<T>::wait_and_pop() {
 //    std::cout << "Wait and pop, thread " << std::this_thread::get_id() << ", ready_to pop:" << t.ready_to_pop[0] << ", " << t.ready_to_pop[1] <<  std::endl;
 
     if (!queue.empty()) {
-        std::cout << "Output: " << queue.back() << std::endl;
+        t = queue.back();
         queue.pop_back();
     } else if (done_flag) {
         return false;
