@@ -26,13 +26,16 @@ void ThreadQueueCondition<T>::push(T&& t) {
 }
 
 template<typename T>
-bool ThreadQueueCondition<T>::wait_and_pop(T& task_, std::function<bool(T&)> pop_condition, bool& done_outside_flag) {
+bool ThreadQueueCondition<T>::wait_and_pop(T& task_, std::function<bool(T&)> pop_condition_fun, bool& done_outside_flag) {
     std::unique_lock ulock{mut};
     cond_var.wait(ulock, [this] {return !queue.empty() || done_flag;});
 
     if (!queue.empty()) {
         task_ = queue.back();
-        if (pop_condition(queue.back())) {
+
+        // std::cout << task_.str << std::endl;
+
+        if (pop_condition_fun(queue.back())) {
             queue.pop_back();
         }
         ulock.unlock();
@@ -44,7 +47,6 @@ bool ThreadQueueCondition<T>::wait_and_pop(T& task_, std::function<bool(T&)> pop
     }
 //    std::cout << "Wait and pop, thread " << std::this_thread::get_id() << ", ready_to pop:" << t.ready_to_pop[0] << ", " << t.ready_to_pop[1] <<  std::endl;
     return false;
-
 }
 
 template<typename T>

@@ -3,8 +3,8 @@
 TaskHandler hand;
 
 
-void connect(int num_threads) {
-    hand.startOutputThreads(LogOutputer{}, num_threads);
+void connect(int num_threads, int num_file_threads) {
+    hand.startOutputThreads(LogOutputer{}, num_threads, FileOutputer{}, num_file_threads);
 }
 
 void receive(std::string&& cmd) {

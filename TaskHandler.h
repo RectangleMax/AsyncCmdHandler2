@@ -8,12 +8,13 @@
 
 class TaskHandler {
     ThreadQueueCondition<Task> q;
-    std::thread output_thread;
+    Task task_pattern;
+
+    // std::thread output_thread;
     std::vector<std::thread> threads_vec;
 public:
     void push(std::string&&);
-    // void registerOutputThreads(BaseOutputer*);
-    void startOutputThreads(LogOutputer, int);
+    void startOutputThreads(LogOutputer, int, FileOutputer, int);
     void wake_up_and_done();
     void joinOutputThreads();
 

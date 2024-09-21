@@ -5,6 +5,6 @@
 #include "TaskHandler.h"
 
 
-void connect(int);
+void connect(int, int);
 void receive(std::string&&);
 void disconnect();

@@ -10,7 +10,7 @@ int main(int argc, char** argv) {
 
     std::cout << std::endl << "start" << std::endl;
 
-    connect(num_threads);
+    connect(num_threads, num_threads);
 
     receive("a1");
     receive("a2");
