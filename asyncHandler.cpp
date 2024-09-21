@@ -1,17 +1,34 @@
 #include "asyncHandler.h"
 
 TaskHandler hand;
+std::once_flag once_flag;
+std::mutex mtx;
 
+int num_log_threads = 2;
+int num_file_threads = 2;
 
-void connect(int num_threads, int num_file_threads) {
-    hand.startOutputThreads(LogOutputer{}, num_threads, FileOutputer{}, num_file_threads);
+void register_and_start_outputers() {
+    hand.startOutputThreads(LogOutputer{}, num_log_threads, FileOutputer{}, num_file_threads);
 }
 
-void receive(std::string&& cmd) {
-    hand.push(std::move(cmd));
+int connect(int N_pack) {
+    std::call_once(once_flag, register_and_start_outputers);
+    int counter;
+    {
+        std::lock_guard<std::mutex> lock{mtx};
+        counter = hand.add_connection(N_pack);
+    }
+    return counter;
 }
 
-void disconnect() {
-    hand.wake_up_and_done();
-    hand.destroy();
+void receive(std::string& cmd, int id) {
+    hand.processing(cmd, id, time(0));
+}
+
+void receive(std::string&& cmd, int id) {
+    hand.processing(cmd, id, time(0));
+}
+
+void disconnect(int id) {
+    hand.del_connection(id);
 }

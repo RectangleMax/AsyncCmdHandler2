@@ -17,7 +17,7 @@ void ThreadQueueCondition<T>::push(T&& t) {
     std::unique_lock ulock{mut};
     queue.push_back(t);
     
-    std::cout << "size " << queue.size() << std::endl;
+    // std::cout << "size " << queue.size() << std::endl;
 
     // std::this_thread::sleep_for(std::chrono::milliseconds(3000));
 
@@ -26,47 +26,23 @@ void ThreadQueueCondition<T>::push(T&& t) {
 }
 
 template<typename T>
-bool ThreadQueueCondition<T>::wait_and_pop(T& task_, std::function<bool(T&)> pop_condition_fun, bool& done_outside_flag) {
+void ThreadQueueCondition<T>::wait_and_pop(T& task_, std::function<bool(T&)> pop_condition_fun, bool& done_outside_flag) {
     std::unique_lock ulock{mut};
     cond_var.wait(ulock, [this] {return !queue.empty() || done_flag;});
 
     if (!queue.empty()) {
-        task_ = queue.back();
+        task_ = queue.front();
 
         // std::cout << task_.str << std::endl;
 
-        if (pop_condition_fun(queue.back())) {
-            queue.pop_back();
+        if (pop_condition_fun(queue.front())) {
+            queue.pop_front();
         }
         ulock.unlock();
         cond_var.notify_one();
-        return true;
+        return; // todo: delete this return?
     } 
     if (done_flag) {
         done_outside_flag = true;
     }
-//    std::cout << "Wait and pop, thread " << std::this_thread::get_id() << ", ready_to pop:" << t.ready_to_pop[0] << ", " << t.ready_to_pop[1] <<  std::endl;
-    return false;
-}
-
-template<typename T>
-bool ThreadQueueCondition<T>::wait_and_pop(T& t) {
-    std::unique_lock ulock{mut};
-    cond_var.wait(ulock, [this] {return !queue.empty() || done_flag;});
-
-    // t = queue.back();
-
-//    std::cout << "Wait and pop, thread " << std::this_thread::get_id() << ", ready_to pop:" << t.ready_to_pop[0] << ", " << t.ready_to_pop[1] <<  std::endl;
-
-    if (!queue.empty()) {
-        t = queue.back();
-        queue.pop_back();
-    } else if (done_flag) {
-        return false;
-    }
-
-    ulock.unlock();
-
-    cond_var.notify_one();
-    return true;
 }

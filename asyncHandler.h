@@ -1,10 +1,12 @@
 #pragma once
-#include <string>
-#include <fstream>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
 
 #include "TaskHandler.h"
 
 
-void connect(int, int);
-void receive(std::string&&);
-void disconnect();
+int connect(int);
+void receive(std::string&, int);
+void receive(std::string&&, int);
+void disconnect(int);
