@@ -24,13 +24,17 @@ class TaskHandler {
     ThreadQueueCondition<Task> q;
     Task task_pattern;
 
-    // std::thread output_thread;
     std::vector<std::thread> threads_vec;
 
+        // std::vector<BaseOutputer*> p_outputer_list;
+    
+    inline static int connections_counter = -1;
+    std::map<int, Connection> connections_map;
+    
     std::string getFileName(time_t);
+    std::map<time_t, int> uniqueTimesCounter;
 public:
     void processing(std::string&, size_t, time_t);
-    void push(std::string&&);
     void startOutputThreads(LogOutputer, int, FileOutputer, int);
     void wake_up_and_done();
     void joinOutputThreads();
@@ -40,7 +44,7 @@ public:
         wake_up_and_done();
         stoptOutputThreads();
     }
-
+private:
     void stoptOutputThreads() {
         // wake_up_and_done();
         // std::this_thread::sleep_for(std::chrono::microseconds(2000));
@@ -52,13 +56,6 @@ public:
         std::cout << "Join thread after." << std::endl;        
     }
 
-private:
-    // std::vector<BaseOutputer*> p_outputer_list;
-    std::map<time_t, int> uniqueTimesCounter;
-
-    inline static int connections_counter = -1;
-    std::map<int, Connection> connections_map;
-
 public:
     int add_connection(size_t N_pack) {
         connections_map.insert({++connections_counter, Connection{N_pack}});
@@ -68,7 +65,7 @@ public:
     void del_connection(int id) {
         auto it = connections_map.find(id);
         if (it->second.n_pack_cur && !it->second.bracket_counter)
-            q.push(Task{task_pattern, std::move(it->second.cmd_block)});
+            q.push(Task{task_pattern, std::move(it->second.cmd_block), it->second.fileName});
         connections_map.erase(it);
     }
 

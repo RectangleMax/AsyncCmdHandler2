@@ -1,13 +1,17 @@
 #pragma once
-#include "ThreadQueueCondition.h"
 #include <algorithm>
+#include <fstream>
+
+#include "ThreadQueueCondition.h"
 
 struct Task {
-    std::string str;
+    std::string cmd;
     std::vector<bool> need_outputer_flags{false, false};
+    std::string fileName;
 
     Task(std::vector<bool> flags_pattern) : need_outputer_flags(flags_pattern) {} // delete this
-    Task(Task& other, std::string&& str_) : need_outputer_flags(other.need_outputer_flags), str(str_) {}
+    Task(Task& other, std::string&& cmd_, std::string fileName_) : 
+        need_outputer_flags(other.need_outputer_flags), cmd(cmd_), fileName(fileName_) {}
     Task() {}
 };
 
@@ -20,6 +24,7 @@ protected:
                           task_.need_outputer_flags.end(), true) == 
                           task_.need_outputer_flags.end()) ? true : false; 
     }
+    void common_output(ThreadQueueCondition<Task>&, int, std::function<bool(Task&)>, std::function<void(Task&)>);
 public:
     virtual void operator()(ThreadQueueCondition<Task>&) = 0;
     virtual std::function<bool(Task&)> pop_condition_fun() = 0;

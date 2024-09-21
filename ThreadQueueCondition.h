@@ -17,9 +17,6 @@ public:
     void wake_up_and_done();
     void push(T&& t);
     void wait_and_pop(T&, std::function<bool(T&)>, bool&);
-    bool wait_and_pop(T&);
-
-    size_t size() { return queue.size(); }
 };
 
 #include "ThreadQueueCondition.cpp"
