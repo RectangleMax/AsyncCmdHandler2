@@ -1,5 +1,4 @@
 #include "asyncHandler.h"
-#include <iostream>
 #include <algorithm>
 
 int main(int argc, char** argv) {
