@@ -5,8 +5,8 @@
 
 #include "TaskHandler.h"
 
-
-int connect(int);
-void receive(std::string&, int);
-void receive(std::string&&, int);
-void disconnect(int);
+using id_type = int;
+id_type connect(int);
+void receive(std::string&, id_type);
+void receive(std::string&&, id_type);
+void disconnect(id_type);

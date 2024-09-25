@@ -40,20 +40,14 @@ public:
     void joinOutputThreads();
 
     ~TaskHandler() { 
-        std::cout << "Destructor of TaskHandler is working ..." << std::endl; 
         wake_up_and_done();
         stoptOutputThreads();
     }
 private:
     void stoptOutputThreads() {
-        // wake_up_and_done();
-        // std::this_thread::sleep_for(std::chrono::microseconds(2000));
-
-        std::cout << "Join thread before." << std::endl;        
         for (auto& t : threads_vec) {
             t.join();
         }
-        std::cout << "Join thread after." << std::endl;        
     }
 
 public:

@@ -11,7 +11,7 @@ void register_and_start_outputers() {
     hand.startOutputThreads(LogOutputer{}, num_log_threads, FileOutputer{}, num_file_threads);
 }
 
-int connect(int N_pack) {
+id_type connect(int N_pack) {
     std::call_once(once_flag, register_and_start_outputers);
     int counter;
     {
@@ -21,14 +21,17 @@ int connect(int N_pack) {
     return counter;
 }
 
-void receive(std::string& cmd, int id) {
+void receive(std::string& cmd, id_type id) {
+    std::lock_guard<std::mutex> lock{mtx};
     hand.processing(cmd, id, time(0));
 }
 
-void receive(std::string&& cmd, int id) {
+void receive(std::string&& cmd, id_type id) {
+    std::lock_guard<std::mutex> lock{mtx};
     hand.processing(cmd, id, time(0));
 }
 
-void disconnect(int id) {
+void disconnect(id_type id) {
+    std::lock_guard<std::mutex> lock{mtx};
     hand.del_connection(id);
 }
