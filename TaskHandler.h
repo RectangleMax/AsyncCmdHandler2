@@ -10,7 +10,6 @@
 using size_t = std::size_t;
 
 struct Connection {
-    // std::string coutput_cmd;
     size_t N_pack;
     std::string cmd_block;
     size_t bracket_counter = 0;
@@ -25,17 +24,17 @@ class TaskHandler {
     Task task_pattern;
 
     std::vector<std::thread> threads_vec;
-
-        // std::vector<BaseOutputer*> p_outputer_list;
-    
     inline static int connections_counter = -1;
     std::map<int, Connection> connections_map;
     
     std::string getFileName(time_t);
     std::map<time_t, int> uniqueTimesCounter;
+
+    std::vector<std::pair<BaseOutputer*,int>> outputers_ptr;
 public:
     void processing(std::string&, size_t, time_t);
-    void startOutputThreads(LogOutputer, int, FileOutputer, int);
+    void startOutputThreads();
+    void registerOutputer(BaseOutputer*, int);
     void wake_up_and_done();
     void joinOutputThreads();
 
